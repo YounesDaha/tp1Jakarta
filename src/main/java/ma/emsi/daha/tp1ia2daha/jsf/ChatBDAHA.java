@@ -50,6 +50,12 @@ public class ChatBDAHA implements Serializable {
     @Inject
     private FacesContext facesContext;
 
+    private String texteReponseJson;
+
+    private String texteRequeteJson;
+
+    private boolean debug;
+
     /**
      * Obligatoire pour un bean CDI (classe gérée par CDI).
      */
@@ -58,6 +64,35 @@ public class ChatBDAHA implements Serializable {
 
     public String getSystemRole() {
         return systemRole;
+    }
+
+    public String getTexteReponseJson() {
+        return texteReponseJson;
+    }
+
+    public void setTexteReponseJson(String texteReponseJson) {
+        this.texteReponseJson = texteReponseJson;
+    }
+
+    public String getTexteRequeteJson() {
+        return texteRequeteJson;
+    }
+
+    public void setTexteRequeteJson(String texteRequeteJson) {
+        this.texteRequeteJson = texteRequeteJson;
+    }
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
+
+
+    public void toggleDebug() {
+        this.setDebug(!isDebug());
     }
 
 
