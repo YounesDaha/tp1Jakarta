@@ -6,6 +6,8 @@ import jakarta.faces.model.SelectItem;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import ma.emsi.daha.tp1ia2daha.llm.JsonUtilPourGemini;
+import ma.emsi.daha.tp1ia2daha.llm.LlmInteraction;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -25,6 +27,8 @@ public class ChatBDAHA implements Serializable {
      * Possible d'ajouter de nouveaux rôles dans la méthode getSystemRoles.
      */
     private String systemRole;
+
+    private JsonUtilPourGemini jsonUtil ;
     /**
      * Quand le rôle est choisi par l'utilisateur dans la liste déroulante,
      * il n'est plus possible de le modifier (voir code de la page JSF) dans la même session de chat.
@@ -149,26 +153,42 @@ public class ChatBDAHA implements Serializable {
             return null;
         }
 
-        // Inversion des mots dans la question.
-        StringBuilder responseBuilder = new StringBuilder("||");
+        try {
+            // Appel à la méthode `envoyerRequete` de `JsonUtil`
+            LlmInteraction interaction = jsonUtil.envoyerRequete(question);
+
+            // Récupération des réponses et des textes JSON pour affichage
+            this.reponse = interaction.reponseExtraite();
+            this.texteRequeteJson = interaction.questionJson();
+            this.texteReponseJson = interaction.reponseJson();
+
+        } catch (Exception e) {
+            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Problème de connexion avec l'API du LLM",
+                    "Problème de connexion avec l'API du LLM : " + e.getMessage());
+            facesContext.addMessage(null, message);
+            return null;
+        }
+
+        // Si la conversation est vide, ajouter le rôle système
+        StringBuilder responseBuilder = new StringBuilder();
         if (this.conversation.isEmpty()) {
-            // Ajouter le rôle système au début de la réponse.
-            responseBuilder.append(systemRole.toUpperCase(Locale.FRENCH)).append("\n");
+            responseBuilder.append("||").append(systemRole.toUpperCase(Locale.FRENCH)).append("\n");
             this.systemRoleChangeable = false;
         }
 
-        // Inverser chaque mot de la question.
+        // Inverser les mots de la question
         String[] words = question.split("\\s+");
         for (String word : words) {
             responseBuilder.append(new StringBuilder(word).reverse()).append(" ");
         }
+        this.reponse += "\n||" + responseBuilder.toString().trim();
 
-        this.reponse = responseBuilder.toString().trim() + "||";
-
-        // Ajouter la réponse à la conversation.
+        // Ajouter la réponse à la conversation
         afficherConversation();
         return null;
     }
+
 
 
 
