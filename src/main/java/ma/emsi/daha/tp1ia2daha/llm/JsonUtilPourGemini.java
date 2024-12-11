@@ -1,5 +1,4 @@
 package ma.emsi.daha.tp1ia2daha.llm;
-
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.json.*;
@@ -21,7 +20,7 @@ import java.util.Map;
 @Dependent
 public class JsonUtilPourGemini implements Serializable {
 
-    private String systemRole; // = "helpful assistant";
+    private String systemRole = "helpful assistant";
     /**
      * Pour ajouter une nouvelle valeur à la fin du tableau JSON "messages" dans le document JSON de la requête.
      * Le "-" final indique que la valeur sera ajoutée à la fin du tableau.
@@ -71,6 +70,7 @@ public class JsonUtilPourGemini implements Serializable {
      * * @param question question posée par l'utilisateur
      *
      * @return la réponse de l'API, sous la forme d'un texte simple (pas JSON).
+     * @throws RequeteException exception lancée dans le cas où la requête a été rejetée par l'API.
      */
     public LlmInteraction envoyerRequete(String question) throws RequeteException {
         String requestBody;

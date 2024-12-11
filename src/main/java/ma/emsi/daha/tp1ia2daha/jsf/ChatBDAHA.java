@@ -28,6 +28,7 @@ public class ChatBDAHA implements Serializable {
      */
     private String systemRole;
 
+    @Inject
     private JsonUtilPourGemini jsonUtil ;
     /**
      * Quand le rôle est choisi par l'utilisateur dans la liste déroulante,
@@ -94,11 +95,9 @@ public class ChatBDAHA implements Serializable {
         this.debug = debug;
     }
 
-
     public void toggleDebug() {
         this.setDebug(!isDebug());
     }
-
 
     public void setSystemRole(String systemRole) {
         this.systemRole = systemRole;
@@ -154,7 +153,7 @@ public class ChatBDAHA implements Serializable {
         }
 
         try {
-            // Appel à la méthode `envoyerRequete` de `JsonUtil`
+            // Appel à la méthode envoyerRequete de JsonUtil
             LlmInteraction interaction = jsonUtil.envoyerRequete(question);
 
             // Récupération des réponses et des textes JSON pour affichage
@@ -177,20 +176,10 @@ public class ChatBDAHA implements Serializable {
             this.systemRoleChangeable = false;
         }
 
-        // Inverser les mots de la question
-        String[] words = question.split("\\s+");
-        for (String word : words) {
-            responseBuilder.append(new StringBuilder(word).reverse()).append(" ");
-        }
-        this.reponse += "\n||" + responseBuilder.toString().trim();
-
         // Ajouter la réponse à la conversation
         afficherConversation();
         return null;
     }
-
-
-
 
     /**
      * Pour un nouveau chat.
@@ -209,34 +198,43 @@ public class ChatBDAHA implements Serializable {
      * Pour afficher la conversation dans le textArea de la page JSF.
      */
     private void afficherConversation() {
-        this.conversation.append("== User:\n").append(question).append("\n== Serveur:\n").append(reponse).append("\n");
+        this.conversation.append("== User:\n").append(question).append("\n== Conseiller en bien-être:\n").append(reponse).append("\n");
     }
 
     public List<SelectItem> getSystemRoles() {
         List<SelectItem> listeSystemRoles = new ArrayList<>();
-        // Ces rôles ne seront utilisés que lorsque la réponse sera données par un LLM.
+        // Ces rôles ne seront utilisés que lorsque la réponse sera donnée par un LLM.
+
         String role = """
                 You are a helpful assistant. You help the user to find the information they need.
                 If the user type a question, you answer it.
                 """;
         listeSystemRoles.add(new SelectItem(role, "Assistant"));
+
         role = """
                 You are an interpreter. You translate from English to French and from French to English.
                 If the user type a French text, you translate it into English.
                 If the user type an English text, you translate it into French.
                 If the text contains only one to three words, give some examples of usage of these words in English.
                 """;
-        // 1er argument : la valeur du rôle, 2ème argument : le libellé du rôle
         listeSystemRoles.add(new SelectItem(role, "Traducteur Anglais-Français"));
+
         role = """
-                Your are a travel guide. If the user type the name of a country or of a town,
+                You are a travel guide. If the user type the name of a country or of a town,
                 you tell them what are the main places to visit in the country or the town
-                are you tell them the average price of a meal.
+                and you tell them the average price of a meal.
                 """;
         listeSystemRoles.add(new SelectItem(role, "Guide touristique"));
+
+        // Ajout du rôle Conseiller en bien-être
+        role = """
+                You are a wellness advisor. If the user expresses feelings of stress or anxiety,
+                you offer calming advice, breathing exercises, or tips to improve mental health.
+                You encourage the user to take breaks, relax, and focus on positive thoughts.
+                """;
+        listeSystemRoles.add(new SelectItem(role, "Conseiller en bien-être"));
 
         this.systemRole = (String) listeSystemRoles.getFirst().getValue();
         return listeSystemRoles;
     }
 }
-
